@@ -8,3 +8,55 @@ imdb <- read.csv("imdb_top_1000.csv")
 head(imdb)
 #comment
 ```
+
+```{r}
+director_imdb <- lm(IMDB_Rating ~ Director, data = imdb)
+summary(director_imdb)
+
+```
+
+```{r}
+star1_imdb <- lm(IMDB_Rating ~ Star1, data = imdb)
+summary(star1_imdb)
+
+```
+
+```{r}
+Y1 <- predict(director_imdb)
+Y2 <- predict(star1_imdb)
+E1 <- mean((imdb$IMDB_Rating - Y1)^2)
+E2 <- mean((imdb$IMDB_Rating - Y2)^2)
+c(E1,E2)
+
+```
+
+```{r}
+#Initialize
+N <- nrow(imdb)
+predictors <- imdb[c("Director","Star1")]
+E_m1 <- numeric(N)
+E_m2 <- numeric(N)
+# CV Loop
+for (i in 1:N)
+{
+  # Fit the models without the i^th data point
+  m1_i <- lm(IMDB_Rating ~ Director, data = imdb[-i,])
+  m2_i <- lm(IMDB_Rating ~ Star1, data = imdb[-i,])
+  # Predict CHD for the unobserved data point i
+  Y1 <- predict(m1_i, newdata = predictors[i,])
+  Y2 <- predict(m2_i, newdata = predictors[i,])
+  # Compute the error
+  E_m1[i] <- (imdb$IMDB_Rating[i] - Y1)^2
+  E_m2[i] <- (imdb$IMDB_Rating[i] - Y2)^2
+}
+
+```
+
+```{r}
+c(mean(E_m1),mean(E_m2))
+
+```
+
+
+
+
