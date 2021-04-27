@@ -6,24 +6,30 @@ output: html_notebook
 ```{r}
 imdb <- read.csv("imdb_top_1000.csv")
 head(imdb)
+imdb <- na.omit(imdb)
+imdb$Gross <- as.numeric(imdb$Gross)
 #comment
 ```
 
+## Question 1
+
+a.
+
 ```{r}
-director_imdb <- lm(IMDB_Rating ~ Director, data = imdb)
-summary(director_imdb)
+gross_imdb <- lm(IMDB_Rating ~ Gross, data = imdb)
+summary(gross_imdb)
 
 ```
 
 ```{r}
-star1_imdb <- lm(IMDB_Rating ~ Star1, data = imdb)
-summary(star1_imdb)
+meta_imdb <- lm(IMDB_Rating ~ Meta_score, data = imdb)
+summary(meta_imdb)
 
 ```
 
 ```{r}
-Y1 <- predict(director_imdb)
-Y2 <- predict(star1_imdb)
+Y1 <- predict(gross_imdb)
+Y2 <- predict(meta_imdb)
 E1 <- mean((imdb$IMDB_Rating - Y1)^2)
 E2 <- mean((imdb$IMDB_Rating - Y2)^2)
 c(E1,E2)
@@ -33,15 +39,15 @@ c(E1,E2)
 ```{r}
 #Initialize
 N <- nrow(imdb)
-predictors <- imdb[c("Director","Star1")]
+predictors <- imdb[c("Gross","Meta_score")]
 E_m1 <- numeric(N)
 E_m2 <- numeric(N)
 # CV Loop
 for (i in 1:N)
 {
   # Fit the models without the i^th data point
-  m1_i <- lm(IMDB_Rating ~ Director, data = imdb[-i,])
-  m2_i <- lm(IMDB_Rating ~ Star1, data = imdb[-i,])
+  m1_i <- lm(IMDB_Rating ~ Gross, data = imdb[-i,])
+  m2_i <- lm(IMDB_Rating ~ Meta_score, data = imdb[-i,])
   # Predict CHD for the unobserved data point i
   Y1 <- predict(m1_i, newdata = predictors[i,])
   Y2 <- predict(m2_i, newdata = predictors[i,])
@@ -56,6 +62,88 @@ for (i in 1:N)
 c(mean(E_m1),mean(E_m2))
 
 ```
+
+b.
+
+```{r}
+gross_meta <- lm(Meta_score ~ Gross, data = imdb)
+summary(gross_meta)
+
+```
+
+```{r}
+imdb_meta <- lm(Meta_score ~ IMDB_Rating, data = imdb)
+summary(imdb_meta)
+
+```
+
+```{r}
+Y1 <- predict(gross_meta)
+Y2 <- predict(imdb_meta)
+E1 <- mean((imdb$Meta_score - Y1)^2)
+E2 <- mean((imdb$Meta_score - Y2)^2)
+c(E1,E2)
+
+```
+
+```{r}
+#Initialize
+N <- nrow(imdb)
+predictors <- imdb[c("Gross","IMDB_Rating")]
+E_m1 <- numeric(N)
+E_m2 <- numeric(N)
+# CV Loop
+for (i in 1:N)
+{
+  # Fit the models without the i^th data point
+  m1_i <- lm(Meta_score ~ Gross, data = imdb[-i,])
+  m2_i <- lm(Meta_score ~ IMDB_Rating, data = imdb[-i,])
+  # Predict CHD for the unobserved data point i
+  Y1 <- predict(m1_i, newdata = predictors[i,])
+  Y2 <- predict(m2_i, newdata = predictors[i,])
+  # Compute the error
+  E_m1[i] <- (imdb$Meta_score[i] - Y1)^2
+  E_m2[i] <- (imdb$Meta_score[i] - Y2)^2
+}
+
+```
+
+```{r}
+c(mean(E_m1),mean(E_m2))
+
+```
+
+## Question 2
+
+...
+
+## Question 3
+
+```{r}
+# Observed Test Statistic
+Tobs <- abs(cor(imdb$IMDB_Rating, imdb$Meta_score))
+#Monte Carlo
+K <- 10000
+# number of permutations used
+Tperm <- numeric(K)
+for (i in 1:K)
+  {
+  imdb_i <- sample(imdb$IMDB_Rating)
+  meta_i <- sample(imdb$Meta_score)
+  Tperm[i] <- abs(cor(imdb_i, meta_i))
+  }
+
+hist(Tperm, breaks=50)
+abline(v=Tobs, lwd=3, col = 'red')
+
+```
+
+```{r}
+mean(Tperm > Tobs)
+
+```
+
+
 
 
 
