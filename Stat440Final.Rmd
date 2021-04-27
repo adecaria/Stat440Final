@@ -4,11 +4,23 @@ output: html_notebook
 ---
 
 ```{r}
+# packages used
+library(tidyverse)
+```
+
+
+```{r}
+# read data
 imdb <- read.csv("imdb_top_1000.csv")
 head(imdb)
-imdb <- na.omit(imdb)
+
+# remove commas from Gross variable
+imdb <- imdb %>%
+  mutate(Gross = gsub(pattern = "[,]", replacement = "", Gross))
+
+# make Gross numeric and remove NAs
 imdb$Gross <- as.numeric(imdb$Gross)
-#comment
+imdb <- na.omit(imdb)
 ```
 
 ## Question 1
@@ -16,27 +28,31 @@ imdb$Gross <- as.numeric(imdb$Gross)
 a.
 
 ```{r}
+# fit IMDB_Rating and Gross to linear model
 gross_imdb <- lm(IMDB_Rating ~ Gross, data = imdb)
 summary(gross_imdb)
-
 ```
 
 ```{r}
+# fit IMDB_Rating and Meta_score to linear model
 meta_imdb <- lm(IMDB_Rating ~ Meta_score, data = imdb)
 summary(meta_imdb)
-
 ```
 
 ```{r}
+# predict IMDB Rating from gross (model 1)
 Y1 <- predict(gross_imdb)
-Y2 <- predict(meta_imdb)
 E1 <- mean((imdb$IMDB_Rating - Y1)^2)
+
+# predict IMDB Rating from meta score (model 2)
+Y2 <- predict(meta_imdb)
 E2 <- mean((imdb$IMDB_Rating - Y2)^2)
 c(E1,E2)
-
 ```
 
 ```{r}
+# leave-one-out cross validation
+
 #Initialize
 N <- nrow(imdb)
 predictors <- imdb[c("Gross","Meta_score")]
@@ -66,27 +82,31 @@ c(mean(E_m1),mean(E_m2))
 b.
 
 ```{r}
+# fit Meta_score and Gross to linear model
 gross_meta <- lm(Meta_score ~ Gross, data = imdb)
 summary(gross_meta)
-
 ```
 
 ```{r}
+# fit Meta_score and IMDB_Rating to linear model
 imdb_meta <- lm(Meta_score ~ IMDB_Rating, data = imdb)
 summary(imdb_meta)
-
 ```
 
 ```{r}
+# predict meta score from gross (model 1)
 Y1 <- predict(gross_meta)
-Y2 <- predict(imdb_meta)
 E1 <- mean((imdb$Meta_score - Y1)^2)
+
+# predict meta score from imdb rating (model 2)
+Y2 <- predict(imdb_meta)
 E2 <- mean((imdb$Meta_score - Y2)^2)
 c(E1,E2)
-
 ```
 
 ```{r}
+# leave-one-out cross validation
+
 #Initialize
 N <- nrow(imdb)
 predictors <- imdb[c("Gross","IMDB_Rating")]
