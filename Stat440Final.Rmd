@@ -257,8 +257,19 @@ mean(Tperm > Tobs)
 
 ```
 
+## EDA
 
+```{r}
+hist(imdb$IMDB_Rating)
+range(imdb$IMDB_Rating)
 
+```
+
+```{r}
+hist(imdb$Meta_score)
+range(imdb$Meta_score)
+
+```
 
 
 
