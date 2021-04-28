@@ -135,7 +135,101 @@ c(mean(E_m1),mean(E_m2))
 
 ## Question 2
 
-...
+a.
+
+```{r}
+K <- 10000
+
+beta_hat = meta_imdb$coefficients
+
+e_hat = meta_imdb$residuals
+
+bhat_boot <- matrix(nrow=K, ncol = length(beta_hat))
+
+for (k in 1:K){
+  xboot = sample(imdb$Meta_score, size = 100, replace = T)
+  eboot = sample(e_hat, size = 100, replace = T)
+  yboot = beta_hat[1] + beta_hat[2]*xboot + eboot
+  mboot = lm(yboot ~ xboot)
+  bhat_boot[k,] = mboot$coefficients
+}
+
+```
+
+```{r}
+par(mfrow = c(1,2))
+hist(bhat_boot[,1])
+abline(v=beta_hat[1], lwd = 3, col = 'red')
+hist(bhat_boot[,2])
+abline(v=beta_hat[2], lwd = 3, col = 'red')
+
+```
+
+```{r}
+alpha = 0.05
+CI_int = quantile(bhat_boot[,1], probs = c(alpha/2, 1-alpha/2))
+CI_slp = quantile(bhat_boot[,2], probs = c(alpha/2, 1-alpha/2))
+
+```
+
+```{r}
+par(mfrow = c(1,2))
+hist(bhat_boot[,1])
+abline(v=beta_hat[1], lwd=3, col='red')
+abline(v=CI_int, lwd=3, col='blue')
+hist(bhat_boot[,2])
+abline(v=beta_hat[2], lwd=3, col='red')
+abline(v=CI_slp, lwd=3, col='blue')
+
+```
+
+b.
+
+```{r}
+K <- 10000
+
+beta_hat = imdb_meta$coefficients
+
+e_hat = imdb_meta$residuals
+
+bhat_boot <- matrix(nrow=K, ncol = length(beta_hat))
+
+for (k in 1:K){
+  xboot = sample(imdb$IMDB_Rating, size = 100, replace = T)
+  eboot = sample(e_hat, size = 100, replace = T)
+  yboot = beta_hat[1] + beta_hat[2]*xboot + eboot
+  mboot = lm(yboot ~ xboot)
+  bhat_boot[k,] = mboot$coefficients
+}
+
+```
+
+```{r}
+par(mfrow = c(1,2))
+hist(bhat_boot[,1])
+abline(v=beta_hat[1], lwd = 3, col = 'red')
+hist(bhat_boot[,2])
+abline(v=beta_hat[2], lwd = 3, col = 'red')
+
+```
+
+```{r}
+alpha = 0.05
+CI_int = quantile(bhat_boot[,1], probs = c(alpha/2, 1-alpha/2))
+CI_slp = quantile(bhat_boot[,2], probs = c(alpha/2, 1-alpha/2))
+
+```
+
+```{r}
+par(mfrow = c(1,2))
+hist(bhat_boot[,1])
+abline(v=beta_hat[1], lwd=3, col='red')
+abline(v=CI_int, lwd=3, col='blue')
+hist(bhat_boot[,2])
+abline(v=beta_hat[2], lwd=3, col='red')
+abline(v=CI_slp, lwd=3, col='blue')
+
+```
 
 ## Question 3
 
